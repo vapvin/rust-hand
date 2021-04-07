@@ -1,45 +1,33 @@
-#[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
-struct Person {
-    name: String,
-    age: u32
-}
-
-impl Person {
-    pub fn new(name: String, age: u32) -> Self {
-        Person {
-            name,
-            age
-        }
-    }
-}
+use clap::{Arg, App};
 
 fn main() {
-    let mut people = vec![
-        Person::new("Zoe".to_string(), 25),
-        Person::new("Al".to_string(), 60),
-        Person::new("John".to_string(), 1),
-    ];
+    let matches = App::new("My Test Program")
+        .version("0.1.0")
+        .author("Hackerman Jones <hckrmnjones@hack.gov>")
+        .about("Teaches argument parsing")
+        .arg(Arg::with_name("file")
+                 .short("f")
+                 .long("file")
+                 .takes_value(true)
+                 .help("A cool file"))
+        .arg(Arg::with_name("num")
+                 .short("n")
+                 .long("number")
+                 .takes_value(true)
+                 .help("Five less than your favorite number"))
+        .get_matches();
 
-    // Sort people by derived natural order (Name and age)
-    people.sort();
+    let myfile = matches.value_of("file").unwrap_or("input.txt");
+    println!("The file passed is: {}", myfile);
 
-    assert_eq!(
-        people,
-        vec![
-            Person::new("Al".to_string(), 60),
-            Person::new("John".to_string(), 1),
-            Person::new("Zoe".to_string(), 25),
-        ]);
-
-    // Sort people by age
-    people.sort_by(|a, b| b.age.cmp(&a.age));
-
-    assert_eq!(
-        people,
-        vec![
-            Person::new("Al".to_string(), 60),
-            Person::new("Zoe".to_string(), 25),
-            Person::new("John".to_string(), 1),
-        ]);
-
+    let num_str = matches.value_of("num");
+    match num_str {
+        None => println!("No idea what your favorite number is."),
+        Some(s) => {
+            match s.parse::<i32>() {
+                Ok(n) => println!("Your favorite number must be {}.", n + 5),
+                Err(_) => println!("That's not a number! {}", s),
+            }
+        }
+    }
 }
